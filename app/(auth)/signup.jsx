@@ -94,8 +94,10 @@ const Signup = () => {
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
             <View style={styles.iconContainer}>
-                <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
-                <Image source={icon} style={styles.centerIcon} />
+            <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>           
+                     <Image source={icon} style={styles.centerIcon} />
             </View>
             <Text style={[styles.title, isDarkMode && styles.darkTitle]}>SignUp</Text>
             <Text style={[styles.subtitle, isDarkMode && styles.darkSubtitle]}>
@@ -135,9 +137,10 @@ const Signup = () => {
                         placeholderTextColor="rgba(128,128,128,1)"
                         secureTextEntry={!passwordVisible}
                     />
-                    <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
-                        <Image source={passwordVisible ? Open : Close} style={styles.eyeImage} />
+                           <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
+                        <Icon name={passwordVisible ? "eye-off" : "eye"} size={20} color="rgba(128,128,128,1)" />
                     </TouchableOpacity>
+                  
                 </View>
                 {errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
@@ -150,9 +153,10 @@ const Signup = () => {
                         placeholderTextColor="rgba(128,128,128,1)"
                         secureTextEntry={!confirmpasswordVisible}
                     />
-                    <TouchableOpacity onPress={toggleConfirmPasswordVisible} style={styles.eyeIcon}>
-                        <Image source={confirmpasswordVisible ? Open : Close} style={styles.eyeImage} />
+                           <TouchableOpacity onPress={toggleConfirmPasswordVisible} style={styles.eyeIcon}>
+                        <Icon name={confirmpasswordVisible ? "eye-off" : "eye"} size={20} color="rgba(128,128,128,1)" />
                     </TouchableOpacity>
+                   
                 </View>
                 {errors.confirmpassword && <Text style={styles.error}>{errors.confirmpassword}</Text>}
             </View>
@@ -203,6 +207,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop:20
     },
     title: {
         marginTop: 30,
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
     eyeIcon: {
         position: 'absolute',
         right: 10,
-        top: 19,
+        top: 10,
     },
     eyeImage: {
         width: 20,
@@ -277,7 +282,7 @@ const styles = StyleSheet.create({
     icon: {
         position: 'absolute',
         left: 10,
-        top: 19,
+        top: 12,
         width: 20,
         height: 20,
     },

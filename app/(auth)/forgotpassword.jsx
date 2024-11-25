@@ -80,7 +80,9 @@ const Forgot = () => {
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
             <View style={styles.iconContainer}>
-                <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
+                <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>
                 <Image source={icon} style={styles.centerIcon} />
             </View>
 
@@ -150,6 +152,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop: 20
     },
     title: {
         marginTop: 30,
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
     icon: {
         position: 'absolute',
         left: 10,
-        top: 19,
+        top: 12,
         width: 20,
         height: 20,
     },

@@ -94,7 +94,7 @@ const SecondRoute = ({ completedEvents, isDarkMode }) => (
         {completedEvents.map((event, index) => (
           <View style={[styles.backgroundImage, isDarkMode && styles.darkBackgroundContainer]}>
 
-            <View key={index} style={styles.mainContainer}>
+            <View key={event._id} style={styles.mainContainer}>
               <Image source={{ uri: `http://192.168.0.98:8000/${event.imageUrl}` }} style={styles.personImage} onError={() => console.log('Failed to load image')} />
               <View style={styles.eventContainer}>
                 <Text style={styles.ticketDetails}>

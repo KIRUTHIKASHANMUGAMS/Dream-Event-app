@@ -1,9 +1,8 @@
-
 import '@expo/metro-runtime';
-import onboard2 from "../assets/images/onboard-2.png";
-import onboard1 from "../assets/images/onboard-1.png";
+import onboard2 from "../../assets/images/onboard-2.png";
+import onboard1 from "../../assets/images/onboard-1.png";
 
-import onboard3 from "../assets/images/onboard-3.png";
+import onboard3 from "../../assets/images/onboard-3.png";
 
 
 export const pages =[

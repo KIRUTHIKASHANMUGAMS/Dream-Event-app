@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, ImageBackground, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import Icon from 'react-native-vector-icons/Ionicons';
 import person from "../../assets/images/person-3.png";
 import arrow from "../../assets/images/arrowWhite.svg";
 import { Image } from 'expo-image';
@@ -9,10 +10,10 @@ import eventArrow from "../../assets/images/event-arrow.png";
 import card from "../../assets/images/card.png";
 import googlemap from "../../assets/images/googlemap.png";
 import Button from '../../components/Button/Button';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { upcomingEventById } from '../../components/api/upcomingEventApi';
-import { useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/theme/ThemeContext';
+import MapIcon from '../../assets/images/homeImage/mapIcon';
 
 
 
@@ -22,9 +23,9 @@ import { useTheme } from '../../components/theme/ThemeContext';
 const EventDetail = () => {
     const [eventDetail, setEventDetail] = useState({})
     const { isDarkMode } = useTheme();
-    const route = useRoute();
-    const { id } = route.params || {};
+    const params = useLocalSearchParams();
 
+    const { id } = params || {};
     useEffect(() => {
         searchData()
     }, [id])
@@ -57,28 +58,31 @@ const EventDetail = () => {
                 style={styles.backgroundImage}
             >
                 <View style={styles.header}>
-                    <Image source={arrow} style={styles.arrowIcon} />
+
+                    <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                        <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#fff'} />
+                    </TouchableOpacity>
                 </View>
 
             </ImageBackground>
 
-            <View style={[styles.topContainer , isDarkMode && styles.darkcontent]}>
+            <View style={[styles.topContainer, isDarkMode && styles.darkcontent]}>
 
                 <View style={styles.cheeryContent}>
                     <View style={styles.eventContent}>
-                        <Text style={[styles.eventTitle ,isDarkMode && styles.darkTitle]}>{eventDetail.eventName}</Text>
+                        <Text style={[styles.eventTitle, isDarkMode && styles.darkTitle]}>{eventDetail.eventName}</Text>
                         <Image source={eventArrow} style={styles.eventImage} />
                     </View>
                     <View style={styles.dateContainer}><Text style={styles.eventDate}>{day} </Text ><Text style={styles.eventContent}>{month}</Text></View>
                 </View>
 
                 <View style={styles.mapContainer}>
-                    <Image source={map} style={styles.arrowIcon} />
-                    <Text style={[styles.eventLocation , isDarkMode &&  styles.darkSubtitle]}>{eventDetail?.location}</Text>
+                    <MapIcon/>
+                    <Text style={[styles.eventLocation, isDarkMode && styles.darkSubtitle]}>{eventDetail?.location}</Text>
                 </View>
 
 
-                <Text style={[styles.eventDescription , isDarkMode && styles.darkSubtitle]}>
+                <Text style={[styles.eventDescription, isDarkMode && styles.darkSubtitle]}>
                     {eventDetail.content}
                 </Text>
 
@@ -141,15 +145,16 @@ const styles = StyleSheet.create({
     },
     darkcontent: {
         backgroundColor: "rgba(64, 64, 64, 1)",
-     
+
 
     },
     darkTitle: {
         color: "#fff"
-    }, 
+    },
 
     mapContainer: {
-        flexDirection: "row"
+        flexDirection: "row",
+        alignItems:"center"
     },
     topContainer: {
 
@@ -252,7 +257,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         flexDirection: "row",
-        color:"#000000"
+        color: "#000000"
     },
     dateContainer: {
         alignItems: "center",

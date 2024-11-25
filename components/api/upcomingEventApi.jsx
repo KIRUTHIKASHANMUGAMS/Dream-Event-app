@@ -30,7 +30,6 @@ export const upcomingEventById = async (id) => {
             }
 
         );
-        console.log("responseiiiiiiiiiiii" , response)
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -89,7 +88,23 @@ export const seatBooking = async (data) => {
     }
 };
 
-
+export const paymentSuccess = async (bookingId) => {
+    try {
+       
+        
+            const url = `${config.paymentSuccess}?bookingId=${bookingId}`; // Construct the URL
+            console.log("Payment Success URL:", url); // Log the URL for debugging
+    
+            const response = await api.get(url);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message);
+        } else {
+            throw new Error(error);
+        }
+    }
+};
 
 export const ticketBookingStatus = async (data) => {
     try {

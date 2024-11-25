@@ -20,6 +20,8 @@ import { chooseEvent } from '../../components/api/chooseEventApi';
 import { useToast } from "react-native-toast-notifications";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure you import AsyncStorage
 import { useTheme } from '../../components/theme/ThemeContext';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 
 
 const ChooseEventScreen = () => {
@@ -88,10 +90,12 @@ const ChooseEventScreen = () => {
 
   return (
     <ScrollView  contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
-      <View style={styles.iconContainer}>
-        <Image source={arrow} style={styles.arrowIcon} />
-        <Image source={icon} style={styles.centerIcon} />
-      </View>
+       <View style={styles.iconContainer}>
+       <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>              
+                  <Image source={icon} style={styles.centerIcon} />
+            </View>
       <Text style={[styles.title, isDarkMode && styles.darkTitle]}>Choose Your Favorite Event</Text>
       <Text style={[styles.description, isDarkMode && styles.darkSubtitle] }>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo ligula eget dolor.
@@ -151,6 +155,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: 'center',
     marginBottom: 20,
+    marginTop:20
   },
   
   buttonSkip: {

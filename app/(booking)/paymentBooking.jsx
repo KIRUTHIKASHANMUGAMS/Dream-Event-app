@@ -1,59 +1,40 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { Image } from 'expo-image';
+import Icon from 'react-native-vector-icons/Ionicons';
 import arrow from "../../assets/images/arrow.svg";
 import person from "../../assets/images/person-3.png";
 import map from "../../assets/images/map.png";
-import gpay from "../../assets/images/gpay.png";
-import paypal from "../../assets/images/paypal.png";
-import ticket from "../../assets/images/ticket.png";
 import Button from "../../components/Button/Button";
-import { useRoute } from '@react-navigation/native';
-import { upcomingEventById } from '../../components/api/upcomingEventApi';
+import { upcomingEventById, seatBooking, paymentSuccess } from '../../components/api/upcomingEventApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useToast } from "react-native-toast-notifications";
-import { seatBooking } from '../../components/api/upcomingEventApi';
 import { useTheme } from '../../components/theme/ThemeContext';
-import Constants from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
-import * as Linking from 'expo-linking';
+import { useStripe } from '@stripe/stripe-react-native';
+import { Asset } from 'expo-asset';
+import config from "../../config";
+import MapIcon from '../../assets/images/homeImage/mapIcon';
+
 
 
 const SearchComponent = () => {
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("googlePay");
-    const [eventDetail, setEventDetail] = useState({})
+    const [eventDetail, setEventDetail] = useState({});
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const { isDarkMode } = useTheme();
-    const handleSelect = (method) => {
-        setSelectedPaymentMethod(method);
-    };
-    const toast = useToast()
+    const toast = useToast();
+    const [imageUri, setImageUri] = useState(null);
+    const [clientSecret, setClientSecret] = useState(null);
+    const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
-    const route = useRoute();
-    const { id } = route.params || {};
-    const navigation = useNavigation();
+    const params = useLocalSearchParams();
+    const { id } = params || {};
 
-    useEffect(() => {
-        const handleDeepLink = (url) => {
-            const route = url.replace(/.*?:\/\//g, ''); // Remove scheme
-            if (route.includes('paymentSuccessfully')) {
-                navigation.navigate('paymentSuccessfully'); // Navigate to your success page
-            }
-        };
 
-        const linkingListener = Linking.addEventListener('url', ({ url }) => handleDeepLink(url));
-
-        return () => {
-            linkingListener.remove();
-        };
-    }, [navigation]);
     useEffect(() => {
         const fetchData = async () => {
             const seats = await AsyncStorage.getItem('@selectedSeats');
             const price = await AsyncStorage.getItem('@totalPrice');
-            console.log("seats", seats, price)
 
             if (seats) {
                 setSelectedSeats(JSON.parse(seats));
@@ -61,51 +42,39 @@ const SearchComponent = () => {
             if (price) {
                 setTotalPrice(JSON.parse(price));
             }
+
+            try {
+                const response = await upcomingEventById({ id });
+
+                const imageUri = Asset.fromURI(`${config.Image}/${response.data.imageUrl}`);
+                setImageUri(imageUri.uri);
+                setEventDetail(response.data);
+            } catch (error) {
+                console.log(error);
+            }
         };
 
         fetchData();
-        console.log("Fetching event data for ID:", id);
-        const fetchEventData = async (id) => {
-            try {
-                const response = await upcomingEventById({ id });
-                setEventDetail(response.data); // Set the event details
-            } catch (error) {
-                console.log(error)
-            }
-        };
-
-        fetchEventData(id);
-
-
     }, [id]);
-
+    const eventDate = new Date(eventDetail.eventDate);
+    const day = eventDate.getDate();
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUNE", "JUL", "AUG", "SEPT", "OCT", "NOV", "DEC"];
+    const month = monthNames[eventDate.getMonth()];
+    const year = eventDate.getFullYear();
 
     const handleBooking = async () => {
-        const userId = await AsyncStorage.getItem('@user_id'); // Get user ID from AsyncStorage
-        const datas = { eventId: id, userId, seatsBooked: selectedSeats };
+        const userId = await AsyncStorage.getItem('@user_id');
+        const bookingData = { eventId: id, userId, seatsBooked: selectedSeats };
 
-    
         try {
-            const response = await seatBooking(datas);
-            const url = response.data.url; 
-    
-            if (url) {
-                // Open the URL using Linking
-                const supported = await Linking.canOpenURL(url);
-                if (supported) {
-                    await Linking.openURL(url);
-    
-                   
-                } else {
-                    Alert.alert('Error', 'Unable to open the URL');
-                }
-            } else {
-                console.error('No URL returned from server');
-            }
-    
+            const response = await seatBooking(bookingData);
+            setClientSecret(response.data.clientSecret);
+            console.log(response)
+            console.log("Client Secret:", response.data.booking._id);
+
+            await handlePayment(response.data.clientSecret, response.data.booking._id);
         } catch (err) {
-            const errorMessage = err.message || 'Booking failed.';
-            toast.show(errorMessage, {
+            toast.show(err.message || 'Booking failed.', {
                 type: 'danger',
                 placement: 'bottom',
                 duration: 3000,
@@ -114,94 +83,108 @@ const SearchComponent = () => {
         }
     };
 
+    const handlePayment = async (clientSecret, bookingId) => {
+        // Initialize the payment sheet
+        const { error: initError } = await initPaymentSheet({
+            paymentIntentClientSecret: clientSecret,
+            merchantDisplayName: "Dream Event",
+        });
 
+        if (initError) {
+            console.error('Error initializing payment sheet:', initError);
+            Alert.alert(initError.message);
+            return;
+        }
 
+        // Present the payment sheet
+        const { error: presentError } = await presentPaymentSheet();
 
+        if (presentError) {
+            console.error('Error presenting payment sheet:', presentError);
+            Alert.alert(presentError.message);
+            return;
+        }
+
+        // Call handleSuccess after successful payment
+        await handleSuccess(bookingId);
+        Alert.alert('Payment Successful', 'Your booking has been confirmed!');
+    };
+
+    const handleSuccess = async (bookingId) => {
+        try {
+            await paymentSuccess(bookingId);
+
+            router.push({
+                pathname: "/successPage",
+                params: { id: id },
+            });
+
+        } catch (error) {
+            Alert.alert('Error', 'Failed to update booking status.');
+        }
+    };
 
     return (
-        <ScrollView  contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
+        <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
             <View style={styles.iconContainer}>
-                <Image source={arrow} style={styles.arrowIcon} />
+
                 <View style={styles.mainContainer}>
-                    <Image source={person} style={styles.personImage} />
+                    <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                        <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                    </TouchableOpacity>
+                    <Image source={{ uri: imageUri }} style={styles.personImage} onError={() => console.log('Failed to load image')} />
+
                     <View style={styles.eventContainer}>
                         <Text style={[styles.eventContent, isDarkMode && styles.darkTitle]}>{eventDetail?.eventName}</Text>
-                        <Text style={[styles.eventEndTime, isDarkMode && styles.darkTitle]}>{eventDetail?.eventDate}{eventDetail?.eventTime}</Text>
+                        <Text style={[styles.eventEndTime, isDarkMode && styles.darkTitle]}>{day} {month} , {year} | {eventDetail?.eventTime}</Text>
                     </View>
                 </View>
+
             </View>
 
-            <View style={[styles.addressContainer , isDarkMode && styles.darkcontainerDetails] }>
+            <View style={[styles.addressContainer, isDarkMode && styles.darkcontainerDetails]}>
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext ,isDarkMode && styles.darkTitle]}>LOCATION</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>LOCATION</Text>
                     <View style={styles.locationContainer}>
-                        <Image source={map} style={styles.mapIcon} />
-                        <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>{eventDetail?.location}</Text>
+                        <MapIcon />
+                        <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{eventDetail?.location}</Text>
                     </View>
                 </View>
-
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>DATE</Text>
-                    <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>{eventDetail.eventDate}</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>DATE</Text>
+                    <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{day} {month} , {year}</Text>
                 </View>
-
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>TIME</Text>
-                    <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>12:00</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>TIME</Text>
+                    <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>12:00</Text>
                 </View>
-
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>SEATS</Text>
-                    <View style={[styles.seatList,isDarkMode && styles.darkTitle]}>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>SEATS</Text>
+                    <View style={[styles.seatList, isDarkMode && styles.darkTitle]}>
                         {selectedSeats.map((seat, index) => (
-                            <Text key={index} style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>{seat} , </Text>
-
+                            <Text key={index} style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{seat}, </Text>
                         ))}
                     </View>
-
                 </View>
             </View>
 
-            <View style={[styles.addressContainer ,isDarkMode && styles.darkcontainerDetails]}>
-                <Text style={[styles.summary,isDarkMode && styles.darkTitle]}>SUMMARY</Text>
+            <View style={[styles.addressContainer, isDarkMode && styles.darkcontainerDetails]}>
+                <Text style={[styles.summary, isDarkMode && styles.darkTitle]}>SUMMARY</Text>
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>Sub-total</Text>
-                    <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>{totalPrice}</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>Sub-total</Text>
+                    <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{totalPrice}</Text>
                 </View>
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>Charge fees</Text>
-                    <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>0</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>Charge fees</Text>
+                    <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>0</Text>
                 </View>
-                <View style={[styles.dashedLine ,,isDarkMode && styles.darkDashboardLine]} />
-
-
+                
+                <View style={[styles.dashedLine, isDarkMode && styles.darkDashboardLine]} />
                 <View style={styles.eventAddress}>
-                    <Text style={[styles.eventtext,isDarkMode && styles.darkTitle]}>Total</Text>
-                    <Text style={[styles.eventDetails,isDarkMode && styles.darkTitle]}>{totalPrice}</Text>
+                    <Text style={[styles.eventtext, isDarkMode && styles.darkTitle]}>Total</Text>
+                    <Text style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{totalPrice}</Text>
                 </View>
             </View>
-
-            {/* <View style={styles.addressContainer}>
-                <TouchableOpacity style={styles.eventAddress} onPress={() => handleSelect('googlePay')}>
-                    <Text style={styles.eventtext}>
-                        <Image source={gpay} style={styles.gpay} />
-                        <Text style={styles.paymentText}> Google Pay </Text>
-                    </Text>
-                    <View style={styles.radioButton}>
-                        {selectedPaymentMethod === 'googlePay' && <View style={styles.selectedCircle} />}
-                    </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.eventAddress} onPress={() => handleSelect('paypal')}>
-                    <Text style={styles.eventtext}>
-                        <Image source={paypal} style={styles.gpay} />
-                        <Text style={styles.paymentText}> Paypal</Text>
-                    </Text>
-                    <View style={styles.radioButton}>
-                        {selectedPaymentMethod === 'paypal' && <View style={styles.selectedCircle} />}
-                    </View>
-                </TouchableOpacity>
-            </View> */}
 
             <View style={styles.buttonContainer}>
                 <Button
@@ -232,19 +215,26 @@ const styles = StyleSheet.create({
     darkTitle: {
         color: "#fff"
     },
-    darkDashboardLine:{
+    darkDashboardLine: {
         borderColor: 'rgba(238, 238, 238, 1)',
     },
-    darkcontainerDetails:{
+    darkcontainerDetails: {
         backgroundColor: "rgba(64, 64, 64, 1)",
-
     },
     arrowIcon: {
         width: 24,
         height: 24,
         position: 'absolute',
-        top: 20,
+        top: '5%',
         left: '0%',
+
+        zIndex: 1,
+    },
+    locationContainer: {
+        flexDirection: "row",
+        gap: 2,
+        alignItems: "center"
+
     },
     seatList: {
         flexDirection: "row"
@@ -257,17 +247,17 @@ const styles = StyleSheet.create({
         borderColor: ' rgba(71, 71, 71, 1)',
         borderStyle: 'dashed'
     },
+  
     iconContainer: {
         width: "100%",
         flexDirection: "row",
-        alignItems: "center",
-        justifyContent: 'center',
         marginBottom: 20,
     },
     personImage: {
         width: 80,
         height: 109,
         borderRadius: 10,
+        marginLeft: 40,
     },
     mainContainer: {
         flexDirection: 'row',
@@ -275,6 +265,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "center",
         marginBottom: 30,
+        marginTop: 20
     },
     summary: {
         fontWeight: "700",
@@ -320,53 +311,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         color: "rgba(0, 0, 0, 1)",
     },
-    hrContainer: {
-        borderBottomWidth: 1,
-        borderStyle: "dashed",
-        borderRadius: 12,
-        borderColor: 'rgba(230, 230, 230, 1)',
-        marginBottom: 20,
-    },
-    gpay: {
-        width: 15,
-        height: 15,
-    },
-    eventMap: {
-        paddingLeft: 5,
-    },
-    paymentText: {
-
-        fontWeight: "700",
-        fontSize: 14,
-        lineHeight: 24,
-        color: "rgba(0, 0, 0, 1)",
-    },
-    radioButton: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: 'rgba(246, 176, 39, 1)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    selectedCircle: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: 'rgba(246, 176, 39, 1)',
-    },
-    mapIcon: {
-        width: 15,
-        height: 15,
-    },
     buttonContainer: {
-        alignItems: 'center',
         marginTop: 20,
     },
-    locationContainer: {
-        flexDirection: "row",
-        gap:5,
-        alignItems:"center"
-    }
 });

@@ -9,8 +9,7 @@ import available from "../../assets/images/available-seat.png";
 import Button from '../../components/Button/Button';
 import { seatBooking } from '../../components/api/upcomingEventApi';
 import { useToast } from "react-native-toast-notifications";
-import { useRoute } from '@react-navigation/native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { upcomingEventById } from '../../components/api/upcomingEventApi';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is imported
 import { useTheme } from '../../components/theme/ThemeContext';
@@ -25,9 +24,9 @@ export default function App() {
 
   const { isDarkMode } = useTheme();
 
-  const route = useRoute();
-  const { id } = route.params || {}; // Get the event ID from route params
+  const params = useLocalSearchParams();
 
+  const { id } = params || {};
   const toast = useToast(); // For showing notifications
 
   // Fetch movie data when component mounts
@@ -35,11 +34,13 @@ export default function App() {
 
 
 
-    console.log("Fetching event data for ID:", id);
     const fetchEventData = async (id) => {
       try {
         const response = await upcomingEventById({ id });
         setSelectedMovie(response.data); // Set the event details
+        const booked = new Set(response.data.seats.filter(seat => seat.isBooked===true).map(seat => seat.seatNumber));
+       console.log("jjjjjjjjjjjj" ,booked)
+        setBookedSeats(booked);
       } catch (error) {
         console.log(error)
       } finally {
@@ -70,46 +71,6 @@ export default function App() {
       setSelectedSeats([...selectedSeats, seat]); // Select the seat
     }
   };
-
-  // const handleBooking = async () => {
-  //   if (selectedSeats.length === 0) {
-  //     toast.show('No seats selected', 'Please select at least one seat to book.', {
-  //       type: 'success',
-  //       placement: 'bottom',
-  //       duration: 3000,
-  //       animationType: 'slide-in',
-  //     });
-  //     return;
-  //   }
-
-  //   const userId = await AsyncStorage.getItem('@user_id'); // Get user ID from AsyncStorage
-  //   const data = { eventId: id, userId,  seatsBooked: selectedSeats };
-
-  //   try {
-  //     const response = await seatBooking(data);
-  //     toast.show(response.message || 'Booking successful!', {
-  //       type: 'success',
-  //       placement: 'bottom',
-  //       duration: 3000,
-  //       animationType: 'slide-in',
-  //     });
-  //     setBookedSeats(new Set([...bookedSeats, ...selectedSeats]));
-  //     setSelectedSeats([]); 
-
-  //     router.push({
-  //       pathname: "/paymentBooking",
-  //       params: { id: id },
-  //   });
-  //   } catch (err) {
-  //     const errorMessage = err.message || 'Booking failed.';
-  //     toast.show(errorMessage, {
-  //       type: 'danger',
-  //       placement: 'bottom',
-  //       duration: 3000,
-  //       animationType: 'slide-in',
-  //     });
-  //   }
-  // };
 
   const handleBooking = async () => {
 
@@ -161,6 +122,8 @@ export default function App() {
             const isSelected = selectedSeats.includes(seat.seatNumber);
             const isOccupied = seat.isBooked;
             const isBooked = bookedSeats.has(seat.seatNumber);
+    
+
 
             return (
               <TouchableOpacity
@@ -187,15 +150,15 @@ export default function App() {
       <View style={styles.legend}>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, styles.booked]} />
-          <Text style={[styles.legendText ,isDarkMode && styles.darkSubtitle]}>Reserved</Text>
+          <Text style={[styles.legendText, isDarkMode && styles.darkSubtitle]}>Reserved</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, styles.available]} />
-          <Text style={[styles.legendText , isDarkMode && styles.darkSubtitle]}>Available</Text>
+          <Text style={[styles.legendText, isDarkMode && styles.darkSubtitle]}>Available</Text>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, styles.selected]} />
-          <Text style={[styles.legendText ,isDarkMode && styles.darkSubtitle]}>Selected</Text>
+          <Text style={[styles.legendText, isDarkMode && styles.darkSubtitle]}>Selected</Text>
         </View>
       </View>
 
@@ -235,7 +198,7 @@ const styles = StyleSheet.create({
   },
   darkContainer: {
     backgroundColor: "#000000"
-},
+  },
   title: {
     fontSize: 24,
     color: '#000000',
@@ -322,12 +285,12 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   booked: {
-    backgroundColor: "rgba(0,0,0,1)",   
+    backgroundColor: "rgba(0,0,0,1)",
   },
   available: {
-    backgroundColor: "rgba(71, 71, 71, 1)",   
-  }, 
-  
+    backgroundColor: "rgba(71, 71, 71, 1)",
+  },
+
   selected: {
     backgroundColor: "rgba(246, 176, 39, 1)",
   },

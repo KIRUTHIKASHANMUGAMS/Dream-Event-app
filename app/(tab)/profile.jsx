@@ -12,7 +12,7 @@ import Center from "../../assets/images/profileImage/Center";
 import Camera from "../../assets/images/profileImage/Camera";
 import Button from "../../components/Button/Button";
 import { router } from 'expo-router';
-import {useTheme } from "../../components/theme/ThemeContext"
+import { useTheme } from "../../components/theme/ThemeContext";
 
 const Profiles = () => <Image source={Profile} style={styles.profileImage} />;
 
@@ -21,28 +21,30 @@ const ProfileScreen = () => {
   const [notification, setNotification] = React.useState(false);
   const { isDarkMode, toggleDarkMode } = useTheme();
 
+
   const toggleSwitchNotification = () => setNotification(previousState => !previousState);
   const trackColor = {
-    false: "#767577", 
-    true: "rgba(255, 255, 255, 1)", 
-};
+    false: "#767577",
+    true: "rgba(255, 255, 255, 1)",
+  };
 
-const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)"; 
+  const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
 
   return (
     <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
       <View style={styles.iconContainer}>
-      <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'}   style={styles.arrowIcon} />
-
+        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+          <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+        </TouchableOpacity>
 
         <Text style={[styles.centerIcon, isDarkMode && styles.darkText]}>Profile</Text>
       </View>
-      
+
       <View style={styles.image_box}>
         <View style={styles.image_container}>
           <Profiles />
           <TouchableOpacity style={[styles.circle]}>
-            <Camera/>
+            <Camera />
           </TouchableOpacity>
         </View>
 
@@ -51,16 +53,16 @@ const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
       </View>
 
       <View style={styles.optionsContainer}>
-        <TouchableOpacity onPress={() => router.push("(profile)/changeProfile")} style={[styles.option , isDarkMode && styles.DarkOption]}>
+        <TouchableOpacity onPress={() => router.push("(profile)/changeProfile")} style={[styles.option, isDarkMode && styles.DarkOption]}>
           <View style={styles.picIcon}>
-          <User />
+            <User />
 
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Profile</Text>
           </View>
           <Icon name="chevron-forward" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
         </TouchableOpacity>
 
-        <View style={[styles.option , isDarkMode && styles.DarkOption]}>
+        <View style={[styles.option, isDarkMode && styles.DarkOption]}>
           <View style={styles.picIcon}>
             <Notification />
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Notification</Text>
@@ -72,7 +74,7 @@ const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
           />
         </View>
 
-        <View style={[styles.option , isDarkMode && styles.DarkOption]}>
+        <View style={[styles.option, isDarkMode && styles.DarkOption]}>
           <View style={styles.picIcon}>
             <DarkMode />
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Dark Mode</Text>
@@ -87,7 +89,7 @@ const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
           />
         </View>
 
-        <TouchableOpacity style={[styles.option , isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/language")}>
+        <TouchableOpacity style={[styles.option, isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/language")}>
           <View style={styles.picIcon}>
             <Language />
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Language</Text>
@@ -95,7 +97,7 @@ const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
           <Icon name="chevron-forward" size={24} color={isDarkMode ? '#ffffff' : '#000000'} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.option , isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/inviteFriend")}>
+        <TouchableOpacity style={[styles.option, isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/inviteFriend")}>
           <View style={styles.picIcon}>
             <Invite />
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Invite Friends</Text>
@@ -103,7 +105,7 @@ const thumbColor = isDarkMode ? "#f5dd4b" : "rgba(255, 255, 255, 1)";
           <Icon name="chevron-forward" size={24} color={isDarkMode ? '#ffffff' : '#000000'} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.option , isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/helpCenter")}>
+        <TouchableOpacity style={[styles.option, isDarkMode && styles.DarkOption]} onPress={() => router.push("(profile)/helpCenter")}>
           <View style={styles.picIcon}>
             <Center />
             <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Help Center</Text>
@@ -155,13 +157,13 @@ const styles = StyleSheet.create({
     height: 11
 
   },
-  darkText:{
-color:'#fff',
+  darkText: {
+    color: '#fff',
   },
   switch: {
     width: 39,
     height: 20,
- 
+
   },
   circle: {
     position: 'absolute',
@@ -209,7 +211,7 @@ color:'#fff',
 
 
   },
-  DarkOption:{
+  DarkOption: {
     backgroundColor: "rgba(64, 64, 64, 1)",
 
   },
@@ -251,7 +253,7 @@ color:'#fff',
 
 
     marginBottom: 10,
-  }, 
+  },
   iconContainer: {
     width: "100%",
     flexDirection: "row",

@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { upcomingEvent, nearBYEvent, popularEvent } from '../../components/api/upcomingEventApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from "../../assets/images/Frame.png";
-import { useRoute } from '@react-navigation/native';
+import { router } from "expo-router";
 import Person1 from "../../assets/images/person-2.png";
 import group from "../../assets/images/group.png";
 import map from "../../assets/images/map.png";
@@ -18,7 +18,6 @@ import { useTheme } from '../../components/theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
 const HomeScreen = () => {
-    const route = useRoute();
     const { eventType } = route.params || {};
     const [events, setEvents] = useState([]);
     const [userId, setUserId] = useState(null);
@@ -74,7 +73,7 @@ const HomeScreen = () => {
 
                     <View style={styles.containerMain}>
                         <Image source={arrow} style={styles.arrowIcon} />
-                        <Text style={[styles.headerText ,isDarkMode && styles.darkTitle]}>Upcoming Event</Text>
+                        <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Upcoming Event</Text>
 
                     </View >
 
@@ -123,11 +122,11 @@ const HomeScreen = () => {
             {eventType === 'popular' && (
 
 
-                <ScrollView  contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]} >
-                    
+                <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]} >
+
                     <View style={styles.containerMain}>
                         <Image source={arrow} style={styles.arrowIcon} />
-                        <Text style={[styles.headerText,isDarkMode && styles.darkTitle]}>Popular Event</Text>
+                        <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Popular Event</Text>
 
                     </View >
                     {events.trendingEventList?.length > 0 &&
@@ -162,11 +161,11 @@ const HomeScreen = () => {
             {/* Nearby Events Section */}
 
             {eventType === 'nearBY' && (
-                <ScrollView  contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
-                    
+                <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
+
                     <View style={styles.containerMain}>
                         <Image source={arrow} style={styles.arrowIcon} />
-                        <Text style={[styles.headerText,isDarkMode && styles.darkTitle]}>Nearby Events</Text>
+                        <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Nearby Events</Text>
 
                     </View >
                     {events.length > 0 ? (
@@ -218,8 +217,15 @@ const styles = StyleSheet.create({
     container: {
         flexgrow: 1,
 
-        padding: 16,
+        padding: 20,
         gap: 20
+    },
+    containerMain: {
+        backgroundColor: 'rgba(241, 241, 241, 1)',
+        borderRadius: 8,
+        padding: 10,
+        marginRight: 16,
+
     },
     categoryContainerAll: {
         flexDirection: "row",
@@ -232,7 +238,7 @@ const styles = StyleSheet.create({
     },
     darkTitle: {
         color: "#fff"
-    }, 
+    },
     dateNearBy: {
         fontWeight: "700",
         fontSize: 18,
@@ -298,7 +304,7 @@ const styles = StyleSheet.create({
         borderRadius: 10, // Add border radius for rounded corners
         overflow: 'hidden', // Ensure children do not overflow
         marginRight: 10,
-        paddingRight:10
+        paddingRight: 10
     },
     popularGroup: {
         flexDirection: "row",

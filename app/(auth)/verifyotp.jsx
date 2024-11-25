@@ -8,14 +8,13 @@ import { router } from 'expo-router';
 import { useToast } from "react-native-toast-notifications";
 import { OtpInput } from "react-native-otp-entry";
 import { verifyotp } from '../../components/api/authApi';
-import { useRoute } from '@react-navigation/native';
+
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../components/theme/ThemeContext';
 
 const VerifyOtp = () => {
     const [otp, setOtp] = useState('');
     const toast = useToast();
-    const route = useRoute();
     const [errors, setErrors] = useState({});
     const { isDarkMode } = useTheme();
 
@@ -85,8 +84,9 @@ const VerifyOtp = () => {
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
             <View style={styles.iconContainer}>
-                <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
-                <Image source={icon} style={styles.centerIcon} />
+            <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>                <Image source={icon} style={styles.centerIcon} />
             </View>
             <Text style={[styles.title, isDarkMode && styles.darkTitle]}>Verification OTP</Text>
             <Text style={[styles.subtitle, isDarkMode && styles.darkSubtitle]}>
@@ -134,6 +134,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop:20
+
     },
     registerText: {
         textAlign: 'center',

@@ -1,11 +1,8 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import React, { useState } from 'react';
 import { Image } from 'expo-image';
-import arrow from "../../assets/images/arrow.svg";
 import emailIcon from "../../assets/images/email.png";
 import lockIcon from "../../assets/images/Lock.png";
-import Open from "../../assets/images/eye-open.svg";
-import Close from "../../assets/images/eye-close.png";
 import icon from "../../assets/images/icon-dream.png";
 import Button from '../../components/Button/Button';
 import { router } from 'expo-router';
@@ -14,7 +11,6 @@ import { useToast } from "react-native-toast-notifications"; // Import toast
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../components/theme/ThemeContext';
 import Icon from 'react-native-vector-icons/Ionicons';
-
 
 const EmailIcon = () => <Image source={emailIcon} style={styles.icon} />;
 const LockIcon = () => <Image source={lockIcon} style={styles.icon} />;
@@ -26,8 +22,6 @@ const Login = () => {
     const [errors, setErrors] = useState({});
     const toast = useToast(); // Initialize toast
     const { isDarkMode } = useTheme();
-
-
 
     const togglePasswordVisible = () => {
         setPasswordVisible(!passwordVisible);
@@ -42,39 +36,34 @@ const Login = () => {
     };
 
     const handleSubmit = async () => {
+        if (!validateForm()) return;
+        const { email, password } = user;
+        const data = { email, password };
 
-
-         router.push("/home")
-
-
-        // if (!validateForm()) return;
-        // const { email, password } = user;
-        // const data = { email, password };
-
-        // try {
-        //     const response = await login(data);
-        //     await AsyncStorage.setItem('@user_id', response.id);
-        //     await AsyncStorage.setItem('@user_token', response.token);
-        //     toast.show(response.message || 'Login successfully!', {
-        //         type: 'success',
-        //         placement: 'bottom',
-        //         duration: 3000,
-        //         animationType: 'slide-in',
-        //     });
-        //     setTimeout(() => {
-        //         router.push({
-        //             pathname: "(event)/event",
-        //         });
-        //     }, 3000)
-        // } catch (err) {
-        //     const errorMessage = err.message || 'Login failed.';
-        //     toast.show(errorMessage, {
-        //         type: 'danger',
-        //         placement: 'bottom',
-        //         duration: 3000,
-        //         animationType: 'slide-in',
-        //     });
-        // }
+        try {
+            const response = await login(data);
+            await AsyncStorage.setItem('@user_id', response.id);
+            await AsyncStorage.setItem('@user_token', response.token);
+            toast.show(response.message || 'Login successfully!', {
+                type: 'success',
+                placement: 'bottom',
+                duration: 3000,
+                animationType: 'slide-in',
+            });
+            setTimeout(() => {
+                router.push({
+                    pathname: "(event)/event",
+                });
+            }, 3000);
+        } catch (err) {
+            const errorMessage = err.message || 'Login failed.';
+            toast.show(errorMessage, {
+                type: 'danger',
+                placement: 'bottom',
+                duration: 3000,
+                animationType: 'slide-in',
+            });
+        }
     };
 
     const handlePasswordReset = () => {
@@ -103,10 +92,11 @@ const Login = () => {
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
             <View style={styles.iconContainer}>
-                <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
+                <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>
                 <Image source={icon} style={styles.centerIcon} />
             </View>
-
 
             <Text style={[styles.title, isDarkMode && styles.darkTitle]}> Login</Text>
             <Text style={[styles.subtitle, isDarkMode && styles.darkSubtitle]}>
@@ -134,8 +124,8 @@ const Login = () => {
                         onChangeText={(value) => handleChange("password", value)}
                         secureTextEntry={!passwordVisible}
                     />
-                    <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
-                        <Image source={passwordVisible ? Open : Close} style={styles.eyeImage} />
+                   <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
+                        <Icon name={passwordVisible ? "eye-off" : "eye"} size={20} color="rgba(128,128,128,1)" />
                     </TouchableOpacity>
                 </View>
                 {errors.password && <Text style={styles.error}>{errors.password}</Text>}
@@ -190,7 +180,6 @@ const styles = StyleSheet.create({
     },
     darkSubtitle: {
         color: "rgba(238, 238, 238, 1)"
-
     },
     darkTitle: {
         color: "#fff"
@@ -201,6 +190,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop: 20
     },
     title: {
         marginTop: 30,
@@ -218,16 +208,18 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: 'rgba(71,71,71,1)',
     },
+   
     inputBox: {
         position: 'relative',
         marginBottom: 15,
         borderWidth: 1,
         borderRadius: 12,
         borderColor: 'rgba(230, 230, 230, 1)',
+        paddingLeft: 40, // Add padding for the icon
     },
     input: {
         paddingVertical: 12,
-        paddingHorizontal: 40,
+        paddingHorizontal: 10,
         borderRadius: 10,
         backgroundColor: 'rgba(255, 255, 255, 0.08)',
         color: 'rgba(128,128,128,1)',
@@ -241,7 +233,7 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         position: 'absolute',
-        top: 20,
+        top: 25,
         left: '0%',
     },
     centerIcon: {
@@ -252,7 +244,7 @@ const styles = StyleSheet.create({
     eyeIcon: {
         position: 'absolute',
         right: 10,
-        top: 19,
+        top: 10,
     },
     eyeImage: {
         width: 20,
@@ -288,7 +280,7 @@ const styles = StyleSheet.create({
     icon: {
         position: 'absolute',
         left: 10,
-        top: 19,
+        top: 12, // Adjusted for better alignment
         width: 20,
         height: 20,
     },

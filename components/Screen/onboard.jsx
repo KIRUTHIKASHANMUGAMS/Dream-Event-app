@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { View, StyleSheet, Dimensions, ScrollView, StatusBar, Animated, Image, BackHandler, SafeAreaView } from "react-native";
-import { pages } from "../../data/onboard";
+import { pages } from "../data/onboard";
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import Index2 from "../Index/Index2/Index2";

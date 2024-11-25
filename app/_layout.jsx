@@ -10,14 +10,16 @@ const Root_layout = () => {
   return (
     <ThemeProvider>
     <ToastProvider>
+      
         <Stack screenOptions={{headerShown: false}}>
         <Stack.Screen name='index' />
         <Stack.Screen name='(location)/location' />
         <Stack.Screen name='(event)/event' />
         <Stack.Screen name='(tab)' />
-        <Stack.Screen name='(booking)' />
+        <Stack.Screen name='(booking)/booking' />
         <Stack.Screen name='(profile)' />
         <Stack.Screen name='(allEventList)' />
+        <Stack.Screen name='(notification)/notification' />
 
 
       

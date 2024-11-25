@@ -92,9 +92,9 @@
 //           longitudeDelta: 0.0421,
 //         } : null}
 //       >
-//         {filteredEvents.map(event => (
+//          {filteredEvents.map((event, index) => (
 //           <Marker
-//             key={event._id}
+//           key={`event-${index}`}
 //             coordinate={{ latitude: event.location.lat, longitude: event.location.long }}
 //             onPress={() => {
 //               setSelectedEvent(event);
@@ -118,6 +118,9 @@
 // });
 
 // export default SearchComponent;
+
+
+
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
  

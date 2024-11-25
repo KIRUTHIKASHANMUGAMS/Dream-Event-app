@@ -27,6 +27,11 @@ const combine = {
     seatBooking: `${config.baseURL}/seatBooking`,
     popularEvent: `${config.baseURL}/dashboard`,
     ticketBookingStatus: `${config.baseURL}/ticketbooking-status`,
+    AddBookMarks: `${config.baseURL}/bookmarks`,
+    bookMarksdelete: `${config.baseURL}/bookmarks`,
+    bookMarkById: `${config.baseURL}/bookmarks`,
+    paymentSuccess: `${config.baseURL}/payment-success`,
+
     Image:`${config.baseURL}`
 
 

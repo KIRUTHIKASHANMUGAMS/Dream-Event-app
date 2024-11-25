@@ -1,18 +1,17 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image } from 'expo-image';
 import arrow from "../../assets/images/arrow.svg";
-import lockIcon from "../../assets/images/Lock.png"; 
-import Open from "../../assets/images/eye-open.svg"; 
+import lockIcon from "../../assets/images/Lock.png";
+import Open from "../../assets/images/eye-open.svg";
 import Close from "../../assets/images/eye-close.png";
 import icon from "../../assets/images/icon-dream.png";
 import Button from '../../components/Button/Button';
 import { router } from 'expo-router';
 import { resetpassword } from '../../components/api/authApi';
-import { useToast } from "react-native-toast-notifications"; 
-import { useRoute } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons'; 
- 
+import { useToast } from "react-native-toast-notifications";
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import { useTheme } from '../../components/theme/ThemeContext';
 
 const LockIcon = () => (
@@ -20,10 +19,9 @@ const LockIcon = () => (
 );
 
 const Resetpassword = () => {
-    const toast = useToast(); 
+    const toast = useToast();
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [errors, setErrors] = useState({});
-    const route = useRoute();
     const { email } = route.params || {};
 
     const { isDarkMode } = useTheme();
@@ -40,7 +38,7 @@ const Resetpassword = () => {
     const handleInputChange = (name, value) => {
         setUser({ ...user, [name]: value });
     };
-    
+
     useEffect(() => {
         if (email) {
             setUser((prevUser) => ({ ...prevUser, email })); // Set the email in user state
@@ -50,7 +48,7 @@ const Resetpassword = () => {
 
     const handlerest = async () => {
         console.log("hai")
-        if (!validateForm()) return; 
+        if (!validateForm()) return;
 
         const { email, password } = user;
         const data = { email, password };
@@ -64,7 +62,7 @@ const Resetpassword = () => {
                 duration: 3000,
                 animationType: 'slide-in',
             });
-            router.push("/login"); 
+            router.push("/login");
         } catch (err) {
             const errorMessage = err.message || 'Password reset failed.';
             toast.show(errorMessage, {
@@ -95,20 +93,22 @@ const Resetpassword = () => {
         }
 
         setErrors(errors);
-        return Object.keys(errors).length === 0; 
+        return Object.keys(errors).length === 0;
     };
 
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
-               <View style={styles.iconContainer}>
-                <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
-                <Image source={icon} style={styles.centerIcon} />
+            <View style={styles.iconContainer}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>               
+                 <Image source={icon} style={styles.centerIcon} />
             </View>
             <Text style={[styles.title, isDarkMode && styles.darkTitle]}>Reset Password</Text>
             <Text style={[styles.subtitle, isDarkMode && styles.darkSubtitle]}>
-            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+                Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
             </Text>
-            
+
             <View style={styles.inputContainer}>
                 <View style={styles.inputBox}>
                     <LockIcon />
@@ -120,8 +120,9 @@ const Resetpassword = () => {
                         onChangeText={(text) => handleInputChange('password', text)}
                     />
                     <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
-                        <Image source={passwordVisible ? Open : Close} style={styles.eyeImage} />
+                        <Icon name={passwordVisible ? "eye-off" : "eye"} size={20} color="rgba(128,128,128,1)" />
                     </TouchableOpacity>
+
                 </View>
                 {errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
@@ -135,8 +136,9 @@ const Resetpassword = () => {
                         onChangeText={(text) => handleInputChange('confirmpassword', text)}
                     />
                     <TouchableOpacity onPress={togglePasswordVisible} style={styles.eyeIcon}>
-                        <Image source={passwordVisible ? Open : Close} style={styles.eyeImage} />
+                        <Icon name={passwordVisible ? "eye-off" : "eye"} size={20} color="rgba(128,128,128,1)" />
                     </TouchableOpacity>
+
                 </View>
                 {errors.confirmpassword && <Text style={styles.error}>{errors.confirmpassword}</Text>}
             </View>
@@ -153,7 +155,7 @@ const Resetpassword = () => {
                     borderRadius={8}
                     width='100%'
                 />
-                <Text style={[styles.registerText,  isDarkMode && styles.darkTitle]}>
+                <Text style={[styles.registerText, isDarkMode && styles.darkTitle]}>
                     Don't have an account? <Text style={styles.registerLink}>Register</Text>
                 </Text>
             </View>
@@ -176,18 +178,20 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
-    },
-    
-darkContainer: {
-    backgroundColor: "#000000"
-},
-darkSubtitle: {
-    color: "rgba(238, 238, 238, 1)"
+        marginTop: 20
 
-},
-darkTitle: {
-    color: "#fff"
-},
+    },
+
+    darkContainer: {
+        backgroundColor: "#000000"
+    },
+    darkSubtitle: {
+        color: "rgba(238, 238, 238, 1)"
+
+    },
+    darkTitle: {
+        color: "#fff"
+    },
     title: {
         marginTop: 30,
         fontFamily: "Outfit_700Bold",
