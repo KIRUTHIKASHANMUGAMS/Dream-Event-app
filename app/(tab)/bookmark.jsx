@@ -24,7 +24,6 @@ export default function App() {
         const response = await bookMarkById(userId);
         setBookmarkedEvents(response);
       } catch (error) {
-        console.error('Error fetching bookmarked events:', error);
       }
     };
 
@@ -54,7 +53,6 @@ function SwipeListCard({ swipeList = [], setBookmarkedEvents }) {
   const deleteBookMark = async (id) => {
     try {
       const response = await DeleteBookMark(id); // Call the API to delete bookmark
-      console.log(response)
       if (response) { // Assuming response has a success property
         // Remove the item from the state
         setBookmarkedEvents(prevEvents => prevEvents.filter(event => event._id !== id));
@@ -73,7 +71,6 @@ function SwipeListCard({ swipeList = [], setBookmarkedEvents }) {
         });
       }
     } catch (error) {
-      console.error('Error deleting bookmark:', error);
       toast.show("Failed to delete bookmark", {
         type: 'error',
         placement: 'bottom',
@@ -173,6 +170,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: 'center',
     marginBottom: 20,
+    marginTop:20
   },
   arrowIcon: {
     width: 24,
@@ -220,6 +218,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  noBookmarksText: {
+    justifyContent: "center", // Center content vertically
+    alignItems: "center", // Center content horizontally
+   margin:"20%",
+    textAlign: "center", // Center align the text
+},
+
+  
   popularGroup: {
     flexDirection: "row",
     justifyContent: "space-between",

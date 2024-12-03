@@ -3,12 +3,13 @@ import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity }
 import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
 import config from "../../config";
-
+import { useTheme } from '../../components/theme/ThemeContext';
 const NearbyEvents = ({ nearByEvent, handleClick, onSeeAll, handleBookmark, bookedEventIds }) => {
+    const { isDarkMode } = useTheme();
     return (
         <View>
             <View style={styles.categoryContainerAll}>
-                <Text style={styles.sectionTitle}>Nearby Events</Text>
+                <Text style={[styles.sectionTitle , isDarkMode && styles.darkTitle]}>Nearby Events</Text>
                 <TouchableOpacity onPress={onSeeAll}>
                     <Text style={styles.sectionAll}>See All</Text>
                 </TouchableOpacity>
@@ -71,6 +72,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
 
         padding: 16,
+    },
+    darkTitle: {
+        color: "#fff"
     },
     darkSearch: {
         backgroundColor: " rgba(64, 64, 64, 1)"

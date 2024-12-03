@@ -69,8 +69,7 @@ const SearchComponent = () => {
         try {
             const response = await seatBooking(bookingData);
             setClientSecret(response.data.clientSecret);
-            console.log(response)
-            console.log("Client Secret:", response.data.booking._id);
+ 
 
             await handlePayment(response.data.clientSecret, response.data.booking._id);
         } catch (err) {

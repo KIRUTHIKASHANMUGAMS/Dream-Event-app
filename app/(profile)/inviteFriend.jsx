@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View, ScrollView ,TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+
 import { Image } from 'expo-image';
 import React from 'react'
-import arrow from "../../assets/images/arrow.svg";
 import invite from "../../assets/images/invite-icon.png";
-import coins from "../../assets/images/coins.png"
+import coins from "../../assets/images/coins.png";
+import { router } from 'expo-router';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Invite = () => <Image source={invite} style={styles.icon} />;
 const Coins = () => <Image source={coins} style={styles.iconCoin} />;
@@ -12,7 +14,9 @@ const SearchComponent = () => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.iconContainer}>
-                <Image source={arrow} style={styles.arrowIcon} />
+                <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                    <Icon name="chevron-back" size={24} color={'#000000'} />
+                </TouchableOpacity>
                 <Text style={styles.centerIcon}>Invite Friends</Text>
             </View>
 
@@ -26,7 +30,7 @@ const SearchComponent = () => {
             <View style={styles.codeContainer}>
                 <Text style={styles.codeText}>qubbiely35674yt</Text>
                 <TouchableOpacity >
-                  <Coins/>
+                    <Coins />
                 </TouchableOpacity>
             </View>
 
@@ -47,18 +51,19 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop: 20
     },
     codeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        textAlign:"center",
+        textAlign: "center",
         borderWidth: 1,
         borderColor: 'black',
         borderRadius: 8,
         padding: 10,
-        width: '100%', 
-        maxWidth: 400, 
-        marginTop:50
+        width: '100%',
+        maxWidth: 400,
+        marginTop: 50
     },
     codeText: {
         fontSize: 18,
@@ -66,9 +71,9 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: 'center',
-        textAlign:"center"
+        textAlign: "center"
     },
- 
+
     mainHeading: {
         fontWeight: "800",
         fontSize: 24,
@@ -91,15 +96,15 @@ const styles = StyleSheet.create({
         width: 353,
         height: 197
     },
-    iconCoin:{
+    iconCoin: {
         width: 24,
         height: 24
     },
     textContent: {
         fontWeight: "400",
-        textAlign:"center",
+        textAlign: "center",
         fontSize: 14,
-        paddingTop:20,
+        paddingTop: 20,
         lineHeight: 24
     },
     centerIcon: {

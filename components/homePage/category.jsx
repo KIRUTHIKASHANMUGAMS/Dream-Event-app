@@ -5,16 +5,16 @@ import { useTheme } from '../../components/theme/ThemeContext';
 
 
 const SearchComponent = () => {
-    const { isDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
 
   return (
     <View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.categoryContainer}>
+        <View style={[styles.categoryContainer]}>
           {Category.map((option) => (
-            <TouchableOpacity 
-              key={option.value} 
-              style={[styles.categoryButton, isDarkMode && styles.darkSearch]}
+            <TouchableOpacity
+              key={option.value}
+              style={[styles.categoryButton, , isDarkMode && styles.darkCategorySearch]}
             >
               <Image source={option.icon} style={styles.optionIcon} />
               <Text style={[styles.categoryText, isDarkMode && styles.darkTitle]}>
@@ -35,6 +35,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
+  },
+  darkCategorySearch: {
+    backgroundColor: "rgba(64,64,64,1)"
   },
   categoryButton: {
     padding: 10,

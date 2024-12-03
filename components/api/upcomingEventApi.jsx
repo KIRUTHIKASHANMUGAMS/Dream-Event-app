@@ -47,7 +47,7 @@ export const nearBYEvent = async (id) => {
             userId: id
         };
 
-        const response = await api.post(config.nearByEventList,data);
+        const response = await api.post(config.nearByEventList, data);
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -61,7 +61,7 @@ export const nearBYEvent = async (id) => {
 
 export const popularEvent = async () => {
     try {
-     
+
         const response = await api.get(config.popularEvent);
         return response.data;
     } catch (error) {
@@ -75,9 +75,9 @@ export const popularEvent = async () => {
 
 export const seatBooking = async (data) => {
     try {
-       
 
-        const response = await api.post(config.seatBooking,data);
+
+        const response = await api.post(config.seatBooking, data);
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -88,14 +88,31 @@ export const seatBooking = async (data) => {
     }
 };
 
+
+export const cancelBooking = async (data) => {
+    try {
+
+        console.log("datajjjjjjjjjjjjjjjjj", data)
+        const response = await api.post(config.cancelBooking, data);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            throw new Error(error.response.data.message);
+        } else {
+            throw new Error(error);
+        }
+    }
+};
+
+
 export const paymentSuccess = async (bookingId) => {
     try {
-       
-        
-            const url = `${config.paymentSuccess}?bookingId=${bookingId}`; // Construct the URL
-            console.log("Payment Success URL:", url); // Log the URL for debugging
-    
-            const response = await api.get(url);
+
+
+        const url = `${config.paymentSuccess}?bookingId=${bookingId}`; // Construct the URL
+        console.log("Payment Success URL:", url); // Log the URL for debugging
+
+        const response = await api.get(url);
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -108,11 +125,11 @@ export const paymentSuccess = async (bookingId) => {
 
 export const ticketBookingStatus = async (data) => {
     try {
-      const event={
-        userId:data
-      } 
+        const event = {
+            userId: data
+        }
 
-        const response = await api.post(config.ticketBookingStatus,event);
+        const response = await api.post(config.ticketBookingStatus, event);
         return response.data;
     } catch (error) {
         if (error.response) {

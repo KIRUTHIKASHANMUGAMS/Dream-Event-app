@@ -22,7 +22,6 @@ const VerifyOtp = () => {
     const { email } = route.params || {};
 
     useEffect(() => {
-        console.log('Received email:', email);
     }, [email]);
 
     const validateForm = () => {
@@ -42,7 +41,6 @@ const VerifyOtp = () => {
         if (!validateForm()) return;
 
         const data = { email, otp };
-        console.log(data);
 
         try {
             const response = await verifyotp(data);

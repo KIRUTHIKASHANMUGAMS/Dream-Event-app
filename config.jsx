@@ -25,12 +25,14 @@ const combine = {
     upcomingEventById: `${config.baseURL}/eventById`,
     nearByEventList: `${config.baseURL}/nearByEvent-list`,
     seatBooking: `${config.baseURL}/seatBooking`,
-    popularEvent: `${config.baseURL}/dashboard`,
+    popularEvent: `${config.baseURL}/dashboard-list`,
     ticketBookingStatus: `${config.baseURL}/ticketbooking-status`,
     AddBookMarks: `${config.baseURL}/bookmarks`,
     bookMarksdelete: `${config.baseURL}/bookmarks`,
     bookMarkById: `${config.baseURL}/bookmarks`,
     paymentSuccess: `${config.baseURL}/payment-success`,
+    cancelBooking: `${config.baseURL}/cancelRefund`,
+
 
     Image:`${config.baseURL}`
 

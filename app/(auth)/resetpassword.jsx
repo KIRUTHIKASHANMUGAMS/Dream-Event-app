@@ -43,16 +43,13 @@ const Resetpassword = () => {
         if (email) {
             setUser((prevUser) => ({ ...prevUser, email })); // Set the email in user state
         }
-        console.log('Received email:', email);
     }, [email]);
 
     const handlerest = async () => {
-        console.log("hai")
         if (!validateForm()) return;
 
         const { email, password } = user;
         const data = { email, password };
-        console.log(data)
 
         try {
             const response = await resetpassword(data);

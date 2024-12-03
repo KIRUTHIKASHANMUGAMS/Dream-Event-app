@@ -38,7 +38,7 @@ const ChooseEventScreen = () => {
     );
   };
 
-  const handleSkip=async()=>{
+  const handleSkip = async () => {
     router.push("/home")
   }
   const handleSubmit = async () => {
@@ -89,15 +89,15 @@ const ChooseEventScreen = () => {
   ];
 
   return (
-    <ScrollView  contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
-       <View style={styles.iconContainer}>
-       <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
-                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
-                </TouchableOpacity>              
-                  <Image source={icon} style={styles.centerIcon} />
-            </View>
+    <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon} >
+          <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+        </TouchableOpacity>
+        <Image source={icon} style={styles.centerIcon} />
+      </View>
       <Text style={[styles.title, isDarkMode && styles.darkTitle]}>Choose Your Favorite Event</Text>
-      <Text style={[styles.description, isDarkMode && styles.darkSubtitle] }>
+      <Text style={[styles.description, isDarkMode && styles.darkSubtitle]}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean commodo ligula eget dolor.
       </Text>
       <Image source={event} style={styles.image} />
@@ -105,7 +105,7 @@ const ChooseEventScreen = () => {
         {eventOptions.map((option) => (
           <TouchableOpacity
             key={option.value}
-            style={[styles.optionButton,isDarkMode && styles.darkOption,  selectedEvents.includes(option.value) && styles.selectedOption]}
+            style={[styles.optionButton, isDarkMode && styles.darkOption, selectedEvents.includes(option.value) && styles.selectedOption]}
             onPress={() => handleToggleEvent(option.value)}
           >
             <Image source={option.icon} style={styles.optionIcon} />
@@ -155,9 +155,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: 'center',
     marginBottom: 20,
-    marginTop:20
+    marginTop: 20
   },
-  
+
   buttonSkip: {
     marginRight: 10,
     fontSize: 18,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginBottom: 20,
   },
-  darkOption:{
+  darkOption: {
     backgroundColor: "rgba(64, 64,64, 1)",
 
   },
@@ -231,14 +231,14 @@ const styles = StyleSheet.create({
   },
   darkContainer: {
     backgroundColor: "#000000"
-},
-darkSubtitle: {
+  },
+  darkSubtitle: {
     color: "rgba(238, 238, 238, 1)"
 
-},
-darkTitle: {
+  },
+  darkTitle: {
     color: "#fff"
-},
+  },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

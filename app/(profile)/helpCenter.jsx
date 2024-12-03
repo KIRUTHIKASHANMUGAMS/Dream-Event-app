@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView ,TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import React from 'react'
 import arrow from "../../assets/images/arrow.svg";
 import Button from '../../components/Button/Button';
 import helpDisk from "../../assets/images/helpDisk.png";
-
+import { router } from 'expo-router';
+import Icon from 'react-native-vector-icons/Ionicons'; 
 
 
 const HelpDisk = () => <Image source={helpDisk} style={styles.iconCoin} />;
@@ -13,7 +14,9 @@ const SearchComponent = () => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.iconContainer}>
-                <Image source={arrow} style={styles.arrowIcon} />
+            <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                    <Icon name="chevron-back" size={24} color={'#000000'} />
+                </TouchableOpacity>
                 <Text style={styles.centerIcon}>Need help? Talk to us</Text>
             </View>
 
@@ -66,6 +69,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop:20
     },
     textContent: {
         fontWeight: "400",

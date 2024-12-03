@@ -10,16 +10,14 @@ import {
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { TabView, SceneMap } from 'react-native-tab-view';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure AsyncStorage is imported
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import map from "../../assets/images/map.png";
-import { ticketBookingStatus } from "../../components/api/upcomingEventApi";
+import { ticketBookingStatus, cancelBooking } from "../../components/api/upcomingEventApi";
 import Button from '../../components/Button/Button';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../components/theme/ThemeContext';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-
-const FirstRoute = ({ pendingEvents, handleView, isDarkMode }) => (
+const FirstRoute = ({ pendingEvents, handleView, isDarkMode, handleCancelBooking }) => (
   <View style={styles.routeContainer}>
     <View>
       {pendingEvents.length === 0 ? (
@@ -27,57 +25,59 @@ const FirstRoute = ({ pendingEvents, handleView, isDarkMode }) => (
       ) : (
         <ScrollView>
           {pendingEvents.map((event) => (
-          
-              <View key={event._id} style={[styles.backgroundImage, isDarkMode && styles.darkBackgroundContainer]}>
-                <View style={styles.mainContainer}>
+            <View key={event.eventId} style={[styles.backgroundImage, isDarkMode && styles.darkBackgroundContainer]}>
+              <View style={styles.mainContainer}>
                 <Image source={{ uri: `http://192.168.0.98:8000/${event.imageUrl}` }} style={styles.personImage} onError={() => console.log('Failed to load image')} />
-                  <View style={styles.eventContainer}>
-                    <Text style={styles.ticketDetails}>
-                      {new Date(event.eventDate).toLocaleDateString()} | {event.eventTime}
-                    </Text>
-                    <Text style={[styles.eventContent, isDarkMode && styles.darkTitle]}>{event.eventName}</Text>
-                    <View style={styles.mapContainer}>
-                      <Image source={map} style={styles.mapIcon} />
-                      <Text style={[styles.venue, isDarkMode && styles.darkTitle]}>{event.location}</Text>
-                    </View>
+                <View style={styles.eventContainer}>
+                  <Text style={styles.ticketDetails}>
+                    {new Date(event.eventDate).toLocaleDateString()} | {event.eventTime}
+                  </Text>
+                  <Text style={[styles.eventContent, isDarkMode && styles.darkTitle]}>{event.eventName}</Text>
+                  <View style={styles.mapContainer}>
+                    <Image source={map} style={styles.mapIcon} />
+                    <Text style={[styles.venue, isDarkMode && styles.darkTitle]}>{event.location}</Text>
                   </View>
                 </View>
-
-                <View style={styles.bookingButton}>
-                  <TouchableOpacity style={styles.button}>
-                    <Button
-                      buttonText="Cancel Booking"
-                      backgroundColor={isDarkMode ? "rgba(64, 64, 64, 1)" : "white"}
-                      textColor={isDarkMode ? "#fff" : "#000000"}
-                      paddingVertical={10}
-                      paddingHorizontal={2}
-                      lineHeight="28"
-                      fontFamily="Outfit_600SemiBold"
-                      fontWeight="600"
-                      borderRadius={8}
-                     
-                    />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={styles.button}>
-                    <Button
-                      buttonText="View Ticket"
-                      backgroundColor="rgba(246,176,39,1)"
-                      textColor="#000000"
-                      onPress={() => handleView(event._id)}
-                      lineHeight="28"
-                      paddingVertical={10}
-                      paddingHorizontal={2}
-                      fontFamily="Outfit_600SemiBold"
-                      fontWeight="600"
-                      borderRadius={8}
-                   
-                    />
-                  </TouchableOpacity>
-                </View>
               </View>
-          )
-          )}
+
+              {/* Render booking details */}
+              {event.bookingDetails.map((booking) => (
+                <View key={booking.seatBookingId} style={styles.bookingDetailContainer}>
+                 
+                  <View style={styles.bookingButton}>
+                    <TouchableOpacity style={styles.button}>
+                      <Button
+                        buttonText="Cancel Booking"
+                        backgroundColor={isDarkMode ? "rgba(64, 64, 64, 1)" : "white"}
+                        textColor={isDarkMode ? "#fff" : "#000000"}
+                        paddingVertical={10}
+                        paddingHorizontal={2}
+                        onPress={() => handleCancelBooking(booking.seatBookingId)} // Use seatBookingId for cancellation
+                        lineHeight="28"
+                        fontFamily="Outfit_600SemiBold"
+                        fontWeight="600"
+                        borderRadius={8}
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button}>
+                      <Button
+                        buttonText="View Ticket"
+                        backgroundColor="rgba(246,176,39,1)"
+                        textColor="#000000"
+                        onPress={() => handleView(event.eventId)}
+                        lineHeight="28"
+                        paddingVertical={10}
+                        paddingHorizontal={2}
+                        fontFamily="Outfit_600SemiBold"
+                        fontWeight="600"
+                        borderRadius={8}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ))}
         </ScrollView>
       )}
     </View>
@@ -91,10 +91,9 @@ const SecondRoute = ({ completedEvents, isDarkMode }) => (
       <Text style={styles.ticketText}>No Completed Tickets</Text>
     ) : (
       <ScrollView>
-        {completedEvents.map((event, index) => (
-          <View style={[styles.backgroundImage, isDarkMode && styles.darkBackgroundContainer]}>
-
-            <View key={event._id} style={styles.mainContainer}>
+        {completedEvents.map((event) => (
+          <View key={event.eventId} style={[styles.backgroundImage, isDarkMode && styles.darkBackgroundContainer]}>
+            <View style={styles.mainContainer}>
               <Image source={{ uri: `http://192.168.0.98:8000/${event.imageUrl}` }} style={styles.personImage} onError={() => console.log('Failed to load image')} />
               <View style={styles.eventContainer}>
                 <Text style={styles.ticketDetails}>
@@ -117,13 +116,14 @@ const SecondRoute = ({ completedEvents, isDarkMode }) => (
 export default function TabViewExample() {
   const [index, setIndex] = useState(0);
   const { isDarkMode } = useTheme();
-
   const [pendingEvents, setPendingEvents] = useState([]);
-  const [completedEvents, setCompletedEvents] = useState([]); // Added state for completed events
+  const [completedEvents, setCompletedEvents] = useState([]);
+  
   const routes = [
     { key: 'Pending', title: 'Pending' },
     { key: 'Completed', title: 'Completed' },
   ];
+  
   const router = useRouter();
 
   const handleView = (id) => {
@@ -133,28 +133,39 @@ export default function TabViewExample() {
     });
   };
 
+  const fetchEventData = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('@user_id');
+      const response = await ticketBookingStatus(userId);
+      console.log("Fetched pending events:", response.pendingEvents);
+
+      setPendingEvents(response.pendingEvents || []); // Set pending events
+      setCompletedEvents(response.completedEvents || []); // Set completed events
+    } catch (error) {
+    }
+  };
+
   useEffect(() => {
-    const fetchEventData = async () => {
-      try {
-        const userId = await AsyncStorage.getItem('@user_id');
-        const response = await ticketBookingStatus(userId);
-    
-        setPendingEvents(response.pending || []); // Set pending events
-        setCompletedEvents(response.completed || []); // Set completed events
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
-    };
+   
 
     fetchEventData();
   }, []);
 
-
-
-
+  const handleCancelBooking = async (bookingId) => {
+    console.log("Cancel Booking called with ID:", bookingId);
+    try {
+      const userId = await AsyncStorage.getItem('@user_id');
+      const response = await cancelBooking({ bookingId, userId, refund: true });
+      console.log("Response from cancelBooking:", response.data);
+      alert("Booking cancelled successfully!");
+      fetchEventData()
+    } catch (error) {
+      alert(`Error cancelling booking: ${error.message}`);
+    }
+  };
 
   const _renderScene = SceneMap({
-    Pending: () => <FirstRoute pendingEvents={pendingEvents} handleView={handleView} isDarkMode={isDarkMode} />,
+    Pending: () => <FirstRoute pendingEvents={pendingEvents} handleView={handleView} handleCancelBooking={handleCancelBooking} isDarkMode={isDarkMode} />,
     Completed: () => <SecondRoute completedEvents={completedEvents} isDarkMode={isDarkMode} />,
   });
 
@@ -166,8 +177,10 @@ export default function TabViewExample() {
       style={[styles.container, isDarkMode && styles.darkContainer]}
       renderTabBar={(props) => (
         <View style={styles.containerMain}>
+            <View style={styles.iconContainer}>
           <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} style={styles.arrowIcon} />
           <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Ticket Booking</Text>
+          </View> 
           <View style={[styles.tabBar, isDarkMode && styles.darkTarbar]}>
             {props.navigationState.routes.map((route, i) => {
               const opacity = props.position.interpolate({
@@ -182,10 +195,9 @@ export default function TabViewExample() {
                   key={i}
                   style={[
                     styles.tabItem,
-
                     i === index
                       ? { backgroundColor: 'rgba(246, 176, 39, 1)' }
-                      : { backgroundColor: isDarkMode ? "rgba(64, 64, 64, 1)" : "#ffffff" }, // Correctly using the conditional style
+                      : { backgroundColor: isDarkMode ? "rgba(64, 64, 64, 1)" : "#ffffff" },
                   ]}
                   onPress={() => setIndex(i)}
                 >
@@ -193,7 +205,6 @@ export default function TabViewExample() {
                     {route.title}
                   </Animated.Text>
                 </TouchableOpacity>
-
               );
             })}
           </View>
@@ -204,22 +215,27 @@ export default function TabViewExample() {
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
   },
   containerMain: {
     paddingTop: 30,
-    margin: 20
+    margin: 20,
+    paddingBottom:30
+  },
+  iconContainer: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: 'center',
+    marginBottom: 20,
   },
   darkTarbar: {
     backgroundColor: "rgba(64, 64, 64, 1)",
-
   },
   darkContainer: {
     backgroundColor: "#000000"
   },
-
   darkTitle: {
     color: "#fff"
   },
@@ -235,16 +251,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 13,
     borderRadius: 20
-
   },
-  button:{
-paddingVertical:10
+  button: {
+    paddingVertical: 10
   },
   bookingButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 10,
-
   },
   tabItem: {
     alignItems: 'center',
@@ -258,7 +272,6 @@ paddingVertical:10
   routeContainer: {
     flex: 1,
     padding: 20,
-
   },
   ticketText: {
     textAlign: 'center',
@@ -282,8 +295,6 @@ paddingVertical:10
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-
-
   },
   backgroundImage: {
     backgroundColor: 'white',
@@ -295,13 +306,10 @@ paddingVertical:10
     padding: 16,
     marginBottom: 20,
     borderRadius: 10,
-
   },
   darkBackgroundContainer: {
     backgroundColor: "rgba(64, 64, 64, 1)",
     shadowColor: "rgba(64, 64, 64, 1)",
-
-
   },
   eventContent: {
     fontWeight: "800",
@@ -327,7 +335,7 @@ paddingVertical:10
     width: 24,
     height: 24,
     position: 'absolute',
-    top: 35,
+    top: 10,
     left: '0%',
   },
 });

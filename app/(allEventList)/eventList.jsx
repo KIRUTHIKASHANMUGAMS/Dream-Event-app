@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { upcomingEvent, nearBYEvent, popularEvent } from '../../components/api/upcomingEventApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from "../../assets/images/Frame.png";
-import { router } from "expo-router";
 import Person1 from "../../assets/images/person-2.png";
 import group from "../../assets/images/group.png";
 import map from "../../assets/images/map.png";
@@ -13,15 +12,19 @@ import { Image } from 'expo-image';
 import config from "../../config";
 import { Asset } from 'expo-asset';
 import { useTheme } from '../../components/theme/ThemeContext';
+import { useLocalSearchParams, router } from 'expo-router';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 
 
 const { width } = Dimensions.get('window');
 const HomeScreen = () => {
-    const { eventType } = route.params || {};
     const [events, setEvents] = useState([]);
     const [userId, setUserId] = useState(null);
     const { isDarkMode } = useTheme();
+    const params = useLocalSearchParams();
+    const { eventType } = params || {};
+
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -64,20 +67,25 @@ const HomeScreen = () => {
     };
 
     return (
-        <ScrollView >
+        <ScrollView contentContainerStyle={[styles.containerDetails, isDarkMode && styles.darkContainerDetails]}>
+
 
 
 
             {eventType === 'upcoming' && (
                 <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
 
-                    <View style={styles.containerMain}>
-                        <Image source={arrow} style={styles.arrowIcon} />
+                    <View style={styles.iconContainer}>
+
+                        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                            <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                        </TouchableOpacity>
                         <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Upcoming Event</Text>
 
-                    </View >
 
-                    {events.length > 0 && (
+                    </View>
+
+                    {events.length > 0 ? (
                         <View style={styles.popularGroup}>
                             {events.map((details) => {
                                 const eventDate = new Date(details.eventDate);
@@ -114,6 +122,10 @@ const HomeScreen = () => {
                                 );
                             })}
                         </View>
+                    ) : (
+                        <View style={styles.noEvent}>
+                            <Text>No Upcoming Events</Text>
+                        </View>
                     )}
                 </ScrollView>
             )}
@@ -124,12 +136,17 @@ const HomeScreen = () => {
 
                 <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]} >
 
-                    <View style={styles.containerMain}>
-                        <Image source={arrow} style={styles.arrowIcon} />
+                    <View style={styles.iconContainer}>
+
+                        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                            <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                        </TouchableOpacity>
                         <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Popular Event</Text>
 
-                    </View >
-                    {events.trendingEventList?.length > 0 &&
+
+                    </View>
+
+                    {events.trendingEventList?.length > 0 ? (
                         events.trendingEventList.map((details) => {
                             const eventDate = new Date(details.eventDate);
                             const day = eventDate.getDate();
@@ -153,8 +170,13 @@ const HomeScreen = () => {
                                         </TouchableOpacity>
                                     </View>
                                 </ImageBackground>
-                            );
-                        })}
+                            )
+                        })
+                    ) : (
+                        <View style={styles.noEvent}>
+                            <Text>No Upcoming Events</Text>
+                        </View>
+                    )}
                 </ScrollView>
             )}
 
@@ -163,11 +185,16 @@ const HomeScreen = () => {
             {eventType === 'nearBY' && (
                 <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
 
-                    <View style={styles.containerMain}>
-                        <Image source={arrow} style={styles.arrowIcon} />
-                        <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Nearby Events</Text>
 
-                    </View >
+                    <View style={styles.iconContainer}>
+
+                        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                            <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                        </TouchableOpacity>
+                        <Text style={[styles.headerText, isDarkMode && styles.darkTitle]}>Nearby Event</Text>
+
+
+                    </View>
                     {events.length > 0 ? (
                         events.map((details) => {
                             const eventDate = new Date(details.eventDate);
@@ -215,11 +242,33 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flexgrow: 1,
-
+        flexGrow: 1,
         padding: 20,
-        gap: 20
+        backgroundColor: '#fff',
     },
+    containerDetails:{
+        flexGrow: 1,   
+        backgroundColor: '#fff',
+    },
+    darkContainerDetails: {
+        backgroundColor: "#00000"
+    },
+    arrowIcon: {
+        width: 24,
+        height: 24,
+        position: 'absolute',
+        top: 30,
+        left: '0%',
+    },
+    iconContainer: {
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: 'center',
+        marginBottom: 20,
+        marginTop: 20
+    },
+
     containerMain: {
         backgroundColor: 'rgba(241, 241, 241, 1)',
         borderRadius: 8,
@@ -280,6 +329,7 @@ const styles = StyleSheet.create({
         lineHeight: 22
 
     },
+
     sectionAll: {
         fontSize: 12,
         fontWeight: "700",
@@ -345,6 +395,14 @@ const styles = StyleSheet.create({
         alignItems: "flex-end",
         padding: 10
 
+    },
+    mainContainer: {
+        flexDirection: 'row',
+        top: 20,
+        justifyContent: "flex-start",
+        alignItems: "center",
+        marginBottom: 30,
+        marginTop: 20
     },
     group: {
         flexDirection: "row",
@@ -582,6 +640,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'center',
         marginBottom: 10,
+        top: 10,
     },
     arrowIcon: {
         width: 24,

@@ -267,7 +267,7 @@
 
 
 
-import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert,TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Image } from 'expo-image';
 import QRCode from 'react-native-qrcode-svg';
@@ -281,6 +281,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Print from 'expo-print';
 import { useTheme } from '../../components/theme/ThemeContext';
 import * as FileSystem from 'expo-file-system';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 
 const SearchComponent = () => {
     const [eventDetails, setEventDetails] = useState(null);
@@ -288,14 +290,23 @@ const SearchComponent = () => {
     const params = useLocalSearchParams();
     const { id } = params || {};
      const { isDarkMode } = useTheme();
+     const [userSeats, setUserSeats] = useState('');
+
 
     useEffect(() => {
         const fetchUserId = async () => {
             const storedUserId = await AsyncStorage.getItem('@user_id');
             setUserId(storedUserId);
         };
+        const fetchUserSeats = async () => {
+            const seats = await AsyncStorage.getItem('@selectedSeats');
+
+            setUserSeats(seats ? JSON.parse(seats).join(', ') : ''); // Assuming seats are stored as a JSON array
+        };
+    
 
         fetchUserId();
+        fetchUserSeats()
 
         const fetchEventData = async (id) => {
             try {
@@ -310,13 +321,7 @@ const SearchComponent = () => {
         fetchEventData(id);
     }, [id]);
 
-    const getUserSeats = async() => {
-        const seats = await AsyncStorage.getItem('@selectedSeats');
-        {selectedSeats.map((seat, index) => (
-            <Text key={index} style={[styles.eventDetails, isDarkMode && styles.darkTitle]}>{seat}, </Text>
-        ))}
-        return '';
-    };
+ 
 
     const handleDownload = async () => {
         if (!eventDetails || !userId) {
@@ -324,7 +329,7 @@ const SearchComponent = () => {
             return;
         }
     
-        const seatsString = getUserSeats();
+        const seatsString = userSeats;
         const htmlContent = `
             <h1>${eventDetails.eventName}</h1>
             <p>Location: ${eventDetails.location}</p>
@@ -355,8 +360,10 @@ const SearchComponent = () => {
     return (
         <ScrollView contentContainerStyle={[styles.container, isDarkMode && styles.darkContainer]}>
         <View style={styles.iconContainer}>
-            <Image source={arrow} style={styles.arrowIcon} />
-        </View>
+        <TouchableOpacity onPress={() => router.back()} style={styles.arrowIcon}>
+                    <Icon name="chevron-back" size={24} color={isDarkMode ? 'rgba(255, 255, 255, 1)' : '#000000'} />
+                </TouchableOpacity>        
+                </View>
         <View style={styles.booking}>
             <Text style={[styles.ticketContainer, isDarkMode && styles.darkTitle]}>Tickets</Text>
         </View>
@@ -376,7 +383,7 @@ const SearchComponent = () => {
                         </View>
                         <View>
                             <Text style={[styles.eventLabel, isDarkMode && styles.darkSubtitle]}>Seat</Text>
-                            <Text style={[styles.eventText, isDarkMode && styles.darkTitle]}>{getUserSeats()}</Text>
+                            <Text style={[styles.eventText, isDarkMode && styles.darkTitle]}>{userSeats}</Text>
                             <Text style={[styles.eventLabel, isDarkMode && styles.darkSubtitle]}>Time</Text>
                             <Text style={[styles.eventText, isDarkMode && styles.darkTitle]}>12:00</Text>
                         </View>
@@ -384,7 +391,7 @@ const SearchComponent = () => {
                     <View style={styles.dashedLine} />
                     <View style={styles.barcodeDetails}>
                         <QRCode
-                            value={`Event Name: ${eventDetails.eventName}, Seat Booked: ${getUserSeats()}`}
+                            value={`Event Name: ${eventDetails.eventName}, Seat Booked: ${userSeats}`}
                             size={200}
                             color="black"
                             backgroundColor="white"
@@ -448,6 +455,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center',
         marginBottom: 20,
+        marginTop:20
     },
     bookingStyle: {
         alignContent: "center",

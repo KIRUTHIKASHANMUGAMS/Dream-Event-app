@@ -2,10 +2,17 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { Tabs, router } from 'expo-router';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import Home from '../../assets/images/tabImage/home';
+import Explore from '../../assets/images/tabImage/explore';
+import Ticket from '../../assets/images/tabImage/ticket';
+import BookMark from '../../assets/images/tabImage/bookMark';
+import Person from '../../assets/images/tabImage/person';
+import { useTheme } from "../../components/theme/ThemeContext";
 
 
 const TabBarButton = ({ children, onPress, accessibilityState, title }) => {
     const isSelected = accessibilityState.selected;
+    const { isDarkMode } = useTheme();
 
     return (
         <TouchableOpacity
@@ -18,14 +25,16 @@ const TabBarButton = ({ children, onPress, accessibilityState, title }) => {
         >
             <View style={[styles.iconContainer, isSelected ? styles.activeIconContainer : null]}>
                 {children}
-                <Text style={[styles.title, isSelected ? styles.active_text : null]}>{title}</Text>
+                <Text style={[styles.title, isDarkMode && styles.darkTitle, isSelected ? styles.active_text : null]}>{title}</Text>
             </View>
         </TouchableOpacity>
     );
 };
 const TabsLayout = () => {
+    const { isDarkMode } = useTheme();
+
     return (
-        <View style={[styles.container, { backgroundColor: "#fff" }]}>
+        <View style={[styles.container, { backgroundColor: isDarkMode ? "#000000" : "#ffffff" }]}>
 
             <Tabs
                 screenOptions={({ route }) => ({
@@ -33,26 +42,26 @@ const TabsLayout = () => {
                     tabBarButton: (props) => (
                         <TabBarButton {...props} title={route.name} />
                     ),
-                    tabBarStyle: [styles.tabBar,],
+                    tabBarStyle: [styles.tabBar, isDarkMode && styles.darkTabbarContainer],
                     headerShown: false,
                     tabBarIcon: ({ focused }) => {
                         let IconComponent;
 
                         switch (route.name) {
                             case 'home':
-                                IconComponent = <Ionicons name="home" size={20} color={focused ? "rgba(246, 176, 39, 1)" : "rgba(71, 71, 71, 1)"} />;
+                                IconComponent = <Home color={focused && "rgba(246, 176, 39, 1)"} />
                                 break;
                             case 'explore':
-                                IconComponent = <Ionicons name="search" size={20} color={focused ? "rgba(246, 176, 39, 1)" : "rgba(71, 71, 71, 1)"} />;
+                                IconComponent = <Explore color={focused && "rgba(246, 176, 39, 1)"} />;
                                 break;
                             case 'ticket':
-                                IconComponent = <Ionicons name="ticket" size={20} color={focused ? "rgba(246, 176, 39, 1)" : "rgba(71, 71, 71, 1)"} />;
+                                IconComponent = <Ticket color={focused && "rgba(246, 176, 39, 1)"} />;
                                 break;
                             case 'bookmark':
-                                IconComponent = <Ionicons name="bookmark" size={20} color={focused ? "rgba(246, 176, 39, 1)" : "rgba(71, 71, 71, 1)"} />;
+                                IconComponent = <BookMark color={focused && "rgba(246, 176, 39, 1)"} />;
                                 break;
                             case 'profile':
-                                IconComponent = <Ionicons name="person" size={20} color={focused ? "rgba(246, 176, 39, 1)" : "rgba(71, 71, 71, 1)"} />;
+                                IconComponent = <Person color={focused && "rgba(246, 176, 39, 1)"} />;
                                 break;
                             default:
                                 IconComponent = null;
@@ -98,14 +107,22 @@ const styles = StyleSheet.create({
         borderTopWidth: 0,
         elevation: 0,
         borderRadius: 10,
+
         paddingTop: 10,
         paddingHorizontal: 10,
         alignItems: 'center',
+    },
+    darkTabbarContainer: {
+        backgroundColor: "#000000",
+        color: '#fff'
     },
     tabButton: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    darkTitle: {
+        color: "#fff"
     },
     iconContainer: {
         maxHeight: 40,

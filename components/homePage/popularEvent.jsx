@@ -3,12 +3,14 @@ import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity }
 import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
 import config from "../../config";
+import { useTheme } from '../../components/theme/ThemeContext';
 
 const PopularEvents = ({ popularEvents, handleClick, onSeeAll, handleBookmark, bookedEventIds }) => {
+    const { isDarkMode } = useTheme();
     return (
         <View>
             <View style={styles.categoryContainerAll}>
-                <Text style={styles.sectionTitle}>Popular Events</Text>
+                <Text style={[styles.sectionTitle, isDarkMode && styles.darkTitle]}>Popular Events</Text>
                 <TouchableOpacity onPress={onSeeAll}>
                     <Text style={styles.sectionAll}>See All</Text>
                 </TouchableOpacity>
@@ -23,6 +25,8 @@ const PopularEvents = ({ popularEvents, handleClick, onSeeAll, handleBookmark, b
                         const years = eventDate.getFullYear();
                         const imageUri = Asset.fromURI(`${config.Image}/${details.imageUrl}`);
                         const isBooked = bookedEventIds.some(bookmark => bookmark.eventId === details._id);
+
+                        console.log("details" ,details)
                         return (
                             <ImageBackground source={imageUri} resizeMode="cover" style={styles.popularCalender} key={details._id}>
                                 <View style={styles.popularGroup}>

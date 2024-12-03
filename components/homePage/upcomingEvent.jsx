@@ -5,12 +5,14 @@ import { Asset } from 'expo-asset';
 import config from "../../config";
 import CategoryData from "./category";
 import MapIcon from '../../assets/images/homeImage/mapIcon';
+import { useTheme } from '../../components/theme/ThemeContext';
 
 const UpcomingEvents = ({ events, handleClick, onSeeAll, handleBookmark, bookedEventIds }) => {
+    const { isDarkMode } = useTheme();
     return (
         <View>
             <View style={styles.categoryContainerAll}>
-                <Text style={styles.sectionTitle}>Upcoming Events</Text>
+                <Text style={[styles.sectionTitle ,isDarkMode && styles.darkTitle]}>Upcoming Events</Text>
                 <TouchableOpacity onPress={onSeeAll}>
                     <Text style={styles.sectionAll}>See All</Text>
                 </TouchableOpacity>
@@ -70,6 +72,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
 
         padding: 16,
+    },
+    darkTitle: {
+        color: "#fff"
     },
     darkSearch: {
         backgroundColor: " rgba(64, 64, 64, 1)"

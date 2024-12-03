@@ -11,6 +11,9 @@ import NearbyEvents from '../../components/homePage/nearByEvent';
 import { AddBookmark, bookMarkById, DeleteBookMark } from '../../components/api/bookMarks';
 import { useToast } from "react-native-toast-notifications";
 import DashboardIcon from '../../assets/images/homeImage/dashboardIcon';
+import Search from '../../assets/images/homeImage/search';
+import Notification from '../../assets/images/homeImage/notification';
+import Arrow from '../../assets/images/homeImage/arrow';
 
 const HomeScreen = () => {
     const [event, setEvent] = useState([]);
@@ -19,7 +22,6 @@ const HomeScreen = () => {
     const { isDarkMode } = useTheme();
     const toast = useToast();
     const [bookedEventIds, setBookedEventIds] = useState([]); // Initialized as empty array
-
     useEffect(() => {
         const fetchEvents = async () => {
             const userId = await AsyncStorage.getItem('@user_id');
@@ -34,7 +36,6 @@ const HomeScreen = () => {
                         })) || [] // Default to empty array
                     );
                 } catch (error) {
-                    console.error("Error fetching bookmarks:", error);
                     setBookedEventIds([]); // Set to empty array on error
                 }
             } else {
@@ -57,7 +58,6 @@ const HomeScreen = () => {
             const response = await nearBYEvent(userId);
             setNearByEvent(response.nearByEvents);
         } catch (error) {
-            console.error("Error fetching nearby events:", error);
         }
     };
 
@@ -131,21 +131,21 @@ const HomeScreen = () => {
                         <Text style={styles.locationText}>Current Location</Text>
                         <Text style={styles.locationText}>New York, USA</Text>
                     </View>
-                    <Image source={require("../../assets/images/arrow-down.png")} style={styles.arrowDown} />
+                    <Arrow/>
                 </View>
                 <TouchableOpacity onPress={handleNotification}>
-                    <Image source={require("../../assets/images/Notification.png")} style={styles.notificationIcon} />
+                    <Notification/>
                 </TouchableOpacity>
             </View>
             <Text style={[styles.content, isDarkMode && styles.darkTitle]}>
                 MAKE YOUR <Text style={styles.titleColor}>PARTY PLANS</Text> OUT HERE
             </Text>
             <View style={[styles.searchSection, isDarkMode && styles.darkSearch]}>
-                <Image source={require("../../assets/images/search.png")} style={styles.searchIcon} />
+               <Search/>
                 <TextInput
                     style={[styles.input, isDarkMode && styles.darkSearch]}
                     placeholder="Search"
-                    placeholderTextColor="#888"
+                    placeholderTextColor={isDarkMode ? "#fff" : "#888"}
                     underlineColorAndroid="transparent"
                 />
                 <DashboardIcon />
@@ -188,6 +188,10 @@ const styles = StyleSheet.create({
         height: 52,
         borderRadius: 20,
         marginRight: 10,
+    },
+    darkSearch:{
+        backgroundColor:"rgba(64, 64, 64, 1)",
+        color:"#fff"
     },
     locationContainer: {
         marginRight: 10,
